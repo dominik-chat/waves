@@ -1,0 +1,26 @@
+# Copyright (C) 2022 Dominik Chat
+#
+# This file is part of Waves.
+#
+# Waves is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version 3
+# of the License, or (at your option) any later version.
+#
+# Waves is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Waves. If not, see <https://www.gnu.org/licenses/>.
+
+cmake_minimum_required(VERSION 3.0)
+
+project(waves)
+
+add_executable(waves main.c ifft.c)
+
+target_link_libraries(waves -lglut -lGLU -lGL)
+
+install(TARGETS waves RUNTIME DESTINATION bin)
