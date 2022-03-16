@@ -24,15 +24,16 @@
 #endif
 
 #include <stdlib.h>
-#include <time.h>
 #include <string.h>
+#include <stdio.h>
+#include "idft.h"
 
 
 #define FOV		50.0
 #define RENDER_DIST	200
-#define CAMERA_X	-30.0
-#define CAMERA_Y	-110.0
-#define CAMERA_Z	70.0
+#define CAMERA_X	-110.0
+#define CAMERA_Y	-30.0
+#define CAMERA_Z	50.0
 
 
 static void resize(int w, int h)
@@ -64,8 +65,11 @@ static void genNoise(double *tab, size_t len)
 static void render(void)
 {
 	int x, y;
-	double cur_z[100];
-	double old_z[100];
+	double cur_dft[100];
+	double old_dft[100];
+	double cur_noi[100];
+	double old_noi[100];
+	double temp;
 
 	glClear(GL_COLOR_BUFFER_BIT);
 
@@ -73,27 +77,44 @@ static void render(void)
 	glLoadIdentity();
 	gluLookAt(CAMERA_X, CAMERA_Y, CAMERA_Z, 0, 0, 0, 0, 0, 1);
 
-	genNoise(old_z, 100);
+	genNoise(old_noi, 100);
+	idftCalc(old_dft, 100);
+
 	glColor3f(0, 0.6, 1);
 	glBegin(GL_LINES);
 	for (x = -50; x < 50; x++) {
-		genNoise(cur_z, 100);
+		genNoise(cur_noi, 100);
+		idftCalc(cur_dft, 100);
 
 		for (y = -50; y < 50; y++) {
-			glVertex3d((double)x, (double)y, old_z[y+50]);
-			glVertex3d((double)x + 1.0d, (double)y, cur_z[y+50]);
+			temp = old_dft[y+50] + old_noi[y+50];
+			glVertex3d((double)x, (double)y, temp);
+			temp = cur_dft[y+50] + cur_noi[y+50];
+			glVertex3d((double)x + 1.0d, (double)y, temp);
 		}
 
-		memcpy(old_z, cur_z, sizeof(old_z));
+		memcpy(old_dft, cur_dft, sizeof(old_dft));
+		memcpy(old_noi, cur_noi, sizeof(old_dft));
 	}
 
 	glEnd();
 	glutSwapBuffers();
 }
 
+static struct magnitude mags[] = {
+	{5.0d, 0.0d},
+	{0.0d, 0.0d},
+	{0.0d, 2.5d},
+	{0.0d, 0.0d},
+	{1.25d, 0.0d},
+	{0.0d, 0.0d},
+	{0.0d, 0.625d},
+};
+
 int main(int argc, char** argv)
 {
 	srand(1);
+	idftInit(mags, 7);
 
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);

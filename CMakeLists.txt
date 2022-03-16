@@ -19,8 +19,8 @@ cmake_minimum_required(VERSION 3.0)
 
 project(waves)
 
-add_executable(waves main.c ifft.c)
+add_executable(waves main.c idft.c)
 
-target_link_libraries(waves -lglut -lGLU -lGL)
+target_link_libraries(waves -lglut -lGLU -lGL -lm)
 
 install(TARGETS waves RUNTIME DESTINATION bin)
