@@ -58,7 +58,7 @@ static void genNoise(double *tab, size_t len)
 	size_t i;
 
 	for (i = 0; i < len; i++) {
-		tab[i] = 0.01d * (rand() % 100);
+		tab[i] = 0.01 * (rand() % 100);
 	}
 }
 
@@ -90,7 +90,7 @@ static void render(void)
 			temp = old_dft[y+50] + old_noi[y+50];
 			glVertex3d((double)x, (double)y, temp);
 			temp = cur_dft[y+50] + cur_noi[y+50];
-			glVertex3d((double)x + 1.0d, (double)y, temp);
+			glVertex3d((double)x + 1.0, (double)y, temp);
 		}
 
 		memcpy(old_dft, cur_dft, sizeof(old_dft));
@@ -102,13 +102,13 @@ static void render(void)
 }
 
 static struct magnitude mags[] = {
-	{5.0d, 0.0d},
-	{0.0d, 0.0d},
-	{0.0d, 2.5d},
-	{0.0d, 0.0d},
-	{1.25d, 0.0d},
-	{0.0d, 0.0d},
-	{0.0d, 0.625d},
+	{5.0, 0.0},
+	{0.0, 0.0},
+	{0.0, 2.5},
+	{0.0, 0.0},
+	{1.25, 0.0},
+	{0.0, 0.0},
+	{0.0, 0.625},
 };
 
 int main(int argc, char** argv)

@@ -24,7 +24,7 @@
 #include "idft.h"
 
 
-#define PI 3.14159265d
+#define PI 3.14159265
 
 
 static struct magnitude *magnitudes;
@@ -37,7 +37,7 @@ static double calcPoint(double t)
 	size_t i;
 	double temp;
 
-	temp = 0.0d;
+	temp = 0.0;
 
 	for (i = 0; i < mag_cnt; i++) {
 		temp += magnitudes[i].sine * sin(t * (double)i);
@@ -62,7 +62,7 @@ int idftInit(const struct magnitude *mag, size_t cnt)
 	memcpy(magnitudes, mag, cnt * sizeof(*magnitudes));
 
 	mag_cnt = cnt;
-	time = 0.0d;
+	time = 0.0;
 
 	return 0;
 }
@@ -80,10 +80,10 @@ int idftCalc(double *out, size_t cnt)
 	}
 
 	for (i = 0; i < cnt; i++) {
-		out[i] = calcPoint(time + i*0.05d);
+		out[i] = calcPoint(time + i*0.05);
 	}
 
-	time += 0.0001d;
+	time += 0.0001;
 
 	return 0;
 }
