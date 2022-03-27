@@ -36,6 +36,9 @@
 #define CAMERA_Z	50.0
 
 
+static struct idft_ctx *ctx;
+
+
 static void resize(int w, int h)
 {
 	float ratio;
@@ -78,13 +81,13 @@ static void render(void)
 	gluLookAt(CAMERA_X, CAMERA_Y, CAMERA_Z, 0, 0, 0, 0, 0, 1);
 
 	genNoise(old_noi, 100);
-	idftCalc(old_dft, 100);
+	idftCalc(ctx, old_dft, 100);
 
 	glColor3f(0, 0.6, 1);
 	glBegin(GL_LINES);
 	for (x = -50; x < 50; x++) {
 		genNoise(cur_noi, 100);
-		idftCalc(cur_dft, 100);
+		idftCalc(ctx, cur_dft, 100);
 
 		for (y = -50; y < 50; y++) {
 			temp = old_dft[y+50] + old_noi[y+50];
@@ -102,19 +105,15 @@ static void render(void)
 }
 
 static struct magnitude mags[] = {
-	{5.0, 0.0},
-	{0.0, 0.0},
-	{0.0, 2.5},
-	{0.0, 0.0},
-	{1.25, 0.0},
-	{0.0, 0.0},
-	{0.0, 0.625},
+	{2.0, 0.0, 2.5},
+	{4.0, 1.25, 0.0},
+	{6.0, 0.0, 0.625},
 };
 
 int main(int argc, char** argv)
 {
 	srand(1);
-	idftInit(mags, 7);
+	idftInit(&ctx, mags, 3);
 
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);

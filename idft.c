@@ -27,63 +27,69 @@
 #define PI 3.14159265
 
 
-static struct magnitude *magnitudes;
-static size_t mag_cnt;
-static volatile double time;
+struct idft_ctx {
+	struct magnitude *mags;
+	size_t mag_cnt;
+	double time;
+};
 
 
-static double calcPoint(double t)
+static double calcPoint(struct idft_ctx *ctx, double t)
 {
 	size_t i;
 	double temp;
 
 	temp = 0.0;
 
-	for (i = 0; i < mag_cnt; i++) {
-		temp += magnitudes[i].sine * sin(t * (double)i);
-		temp += magnitudes[i].cosine * cos(t * (double)i);
+	for (i = 0; i < ctx->mag_cnt; i++) {
+		temp += ctx->mags[i].sine * sin(t * ctx->mags[i].frequency);
+		temp += ctx->mags[i].cosine * cos(t * ctx->mags[i].frequency);
 	}
 
 	return temp;
 }
 
 
-int idftInit(const struct magnitude *mag, size_t cnt)
+int idftInit(struct idft_ctx **ctx, const struct magnitude *mag, size_t cnt)
 {
-	if ((mag == NULL) || (cnt == 0)){
+	if ((mag == NULL) || (cnt == 0) || (ctx == NULL)){
 		return EINVAL;
 	}
 
-	magnitudes = malloc(cnt * sizeof(*magnitudes));
-	if (magnitudes == NULL) {
+	(*ctx) = malloc(sizeof(**ctx));
+	if ((*ctx) == NULL) {
 		return ENOMEM;
 	}
 
-	memcpy(magnitudes, mag, cnt * sizeof(*magnitudes));
+	(*ctx)->mags = malloc(cnt * sizeof(struct magnitude));
+	if ((*ctx)->mags == NULL) {
+		return ENOMEM;
+	}
+	memcpy((*ctx)->mags, mag, cnt * sizeof(struct magnitude));
 
-	mag_cnt = cnt;
-	time = 0.0;
+	(*ctx)->mag_cnt = cnt;
+	(*ctx)->time = 0.0;
 
 	return 0;
 }
 
-int idftCalc(double *out, size_t cnt)
+int idftCalc(struct idft_ctx *ctx, double *out, size_t cnt)
 {
 	size_t i;
 
-	if ((out == NULL) || (cnt == 0)){
+	if ((out == NULL) || (cnt == 0) || (ctx == NULL)){
 		return EINVAL;
 	}
 
-	if (magnitudes == NULL) {
+	if (ctx->mags == NULL) {
 		return EPERM;
 	}
 
 	for (i = 0; i < cnt; i++) {
-		out[i] = calcPoint(time + i*0.05);
+		out[i] = calcPoint(ctx, ctx->time + i*0.05);
 	}
 
-	time += 0.0001;
+	ctx->time += 0.0001;
 
 	return 0;
 }

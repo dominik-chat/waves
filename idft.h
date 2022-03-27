@@ -24,9 +24,12 @@
 
 
 struct magnitude {
+	double frequency;
 	double sine;
 	double cosine;
 };
+
+struct idft_ctx;
 
 
 /**
@@ -35,9 +38,7 @@ struct magnitude {
  * Initialize inverse DFT module by saving the
  * parameters locally.
  *
- * Each magnitude corresponds to n-th order of
- * corresponding trigonometric function.
- *
+ * @param ctx Pointer to context of initialized instance.
  * @param mag Pointer to an array of magnitudes.
  * @param cnt Number of consecutive magnitudes.
  *
@@ -45,8 +46,22 @@ struct magnitude {
  * @retval EINVAL Invalid value of parameters.
  * @retval ENOMEM Not enough memory.
  */
-int idftInit(const struct magnitude *mag, size_t cnt);
+int idftInit(struct idft_ctx **ctx, const struct magnitude *mag, size_t cnt);
 
-int idftCalc(double *out, size_t cnt);
+/**
+ * @brief Calculate current idft.
+ *
+ * Calculate idft of current time index for
+ * given magnitudes
+ *
+ * @param ctx Context of initialized instance.
+ * @param out Pointer to an outpu array.
+ * @param cnt Number of an output array.
+ *
+ * @retval 0 Success.
+ * @retval EINVAL Invalid value of parameters.
+ * @retval EPERM Not initialized.
+ */
+int idftCalc(struct idft_ctx *ctx, double *out, size_t cnt);
 
 #endif /* _IDFT_H_ */
