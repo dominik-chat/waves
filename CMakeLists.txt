@@ -22,5 +22,6 @@ project(waves)
 add_executable(waves main.c idft.c)
 
 target_link_libraries(waves -lglut -lGLU -lGL -lm)
+target_compile_options(waves PRIVATE -Wall -Wextra -Wpedantic -Werror)
 
 install(TARGETS waves RUNTIME DESTINATION bin)
