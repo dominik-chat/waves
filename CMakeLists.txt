@@ -15,13 +15,19 @@
 # You should have received a copy of the GNU General Public License
 # along with Waves. If not, see <https://www.gnu.org/licenses/>.
 
-cmake_minimum_required(VERSION 3.0)
-
+cmake_minimum_required(VERSION 3.9)
 project(waves)
+
+include(CheckIPOSupported)
 
 add_executable(waves main.c idft.c)
 
+check_ipo_supported(RESULT result)
+if(result)
+	set_property(TARGET waves PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+endif()
+
 target_link_libraries(waves -lglut -lGLU -lGL -lm)
-target_compile_options(waves PRIVATE -Wall -Wextra -Wpedantic -Werror)
+target_compile_options(waves PRIVATE -O2 -m64 -Wall -Wextra -Werror)
 
 install(TARGETS waves RUNTIME DESTINATION bin)

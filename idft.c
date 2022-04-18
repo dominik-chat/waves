@@ -24,7 +24,9 @@
 #include "idft.h"
 
 
-#define PI 3.14159265
+#define PI 		3.14159265
+#define TIME_DELTA	0.0001
+#define TIME_RES	0.05
 
 
 struct idft_ctx {
@@ -86,10 +88,10 @@ int idftCalc(struct idft_ctx *ctx, double *out, size_t cnt)
 	}
 
 	for (i = 0; i < cnt; i++) {
-		out[i] = calcPoint(ctx, ctx->time + i*0.05);
+		out[i] = calcPoint(ctx, ctx->time + (i * TIME_RES));
 	}
 
-	ctx->time += 0.0001;
+	ctx->time += TIME_DELTA;
 
 	return 0;
 }

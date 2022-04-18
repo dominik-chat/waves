@@ -43,16 +43,22 @@
 
 static struct idft_ctx *ctx;
 
+static struct magnitude mags[] = {
+	{2.0, 0.0, 2.5},
+	{4.0, 1.25, 0.0},
+	{6.0, 0.0, 0.625},
+};
+
 
 static void resize(int w, int h)
 {
-	float ratio;
+	double ratio;
 
 	if (h == 0) {
 		h = 1;
 	}
 
-	ratio = (float)w/(float)h;
+	ratio = (double)w/(double)h;
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -66,7 +72,7 @@ static void genNoise(double *tab, size_t len)
 	size_t i;
 
 	for (i = 0; i < len; i++) {
-		tab[i] += (0.003 * (rand() % 100));
+		tab[i] += (0.001 * (rand() % 100));
 	}
 }
 
@@ -75,26 +81,30 @@ static void *genWaveMap(size_t width, size_t length)
 	size_t i;
 	size_t size;
 	double *map;
+	int err;
 
 	size = width * length;
 	map = calloc(size, sizeof(double));
 
 	for (i = 0; i < size; i += width) {
-		idftCalc(ctx, &map[i], width);
+		err = idftCalc(ctx, &map[i], width);
+		if (err) {
+			exit(err);
+		}
 	}
 
 	genNoise(map, size);
 
-	return (void *)map;
+	return map;
 }
 
-GLdouble *calcNormal(GLdouble *a, GLdouble *b, GLdouble *c)
+static double *calcNormal(double *a, double *b, double *c)
 {
 	size_t i;
-	GLdouble ab[3];
-	GLdouble ac[3];
-	GLdouble len;
-	static GLdouble norm[3];
+	double ab[3];
+	double ac[3];
+	double len;
+	static double norm[3];
 
 	/* AB = (Bx - Ax, By - Ay, Bz - Az) */
 	for (i = 0; i < 3; i++) {
@@ -119,11 +129,11 @@ static void render(void)
 {
 	size_t x, y;
 	double (*map)[SIZE][SIZE];
-	GLdouble a[3], b[3], c[3], d[3];
-	GLfloat wave_diff[] = {0.0, 0.6, 1.0, 1.0};
-	GLfloat wave_specular[] = {1.0, 1.0, 1.0, 1.0};
-	GLfloat wave_ambient[] = {0.0, 0.1, 0.2, 1.0};
-	GLfloat wave_shine[] = {100.0};
+	double a[3], b[3], c[3], d[3];
+	float wave_diff[] = {0.0f, 0.6f, 1.0f, 1.0f};
+	float wave_specular[] = {1.0f, 1.0f, 1.0f, 1.0f};
+	float wave_ambient[] = {0.0f, 0.1f, 0.2f, 1.0f};
+	float wave_shine[] = {100.0f};
 
 	glClear(GL_COLOR_BUFFER_BIT);
 
@@ -164,16 +174,16 @@ static void render(void)
 	glutSwapBuffers();
 }
 
-static struct magnitude mags[] = {
-	{2.0, 0.0, 2.5},
-	{4.0, 1.25, 0.0},
-	{6.0, 0.0, 0.625},
-};
 
 int main(int argc, char** argv)
 {
+	int err;
+
 	srand(1);
-	idftInit(&ctx, mags, 3);
+	err = idftInit(&ctx, mags, 3);
+	if (err) {
+		return err;
+	}
 
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
@@ -181,10 +191,10 @@ int main(int argc, char** argv)
 	glutInitWindowSize(800, 600);
 	glutCreateWindow("Wave noise simulator");
 
-	GLfloat light_ambient[]={0.2, 0.2, 0.2, 1.0};
-	GLfloat light_diffuse[] = {1.0, 1.0, 1.0, 1.0};
-	GLfloat light_specular[] = {1.0, 1.0, 1.0, 1.0};
-	GLfloat light_position[] = {1.0, 1.0, 0.3, 1.0};
+	GLfloat light_ambient[]={0.2f, 0.2f, 0.2f, 1.0f};
+	GLfloat light_diffuse[] = {1.0f, 1.0f, 1.0f, 1.0f};
+	GLfloat light_specular[] = {1.0f, 1.0f, 1.0f, 1.0f};
+	GLfloat light_position[] = {1.0f, 1.0f, 0.3f, 1.0f};
 
 	glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
@@ -201,5 +211,5 @@ int main(int argc, char** argv)
 
 	glutMainLoop();
 
-	return 0;
+	return err;
 }
