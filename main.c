@@ -41,12 +41,17 @@
 #define EYE_Y		(SIZE_D/2)
 
 
-static struct idft_ctx *ctx;
+static struct idft_ctx *ctx_x;
+static struct idft_ctx *ctx_y;
 
-static struct magnitude mags[] = {
+
+static struct magnitude mags_x[] = {
 	{2.0, 0.0, 2.5},
 	{4.0, 1.25, 0.0},
 	{6.0, 0.0, 0.625},
+};
+static struct magnitude mags_y[] = {
+	{0.7, 0.0, 1.0},
 };
 
 
@@ -72,29 +77,44 @@ static void genNoise(double *tab, size_t len)
 	size_t i;
 
 	for (i = 0; i < len; i++) {
-		tab[i] += (0.001 * (rand() % 100));
+		tab[i] += (0.0005 * (rand() % 100));
 	}
 }
 
 static void *genWaveMap(size_t width, size_t length)
 {
 	size_t i;
+	size_t x, y;
 	size_t size;
 	double *map;
+	double *tmp;
 	int err;
 
 	size = width * length;
 	map = calloc(size, sizeof(double));
+	tmp = calloc(size, sizeof(double));
 
 	for (i = 0; i < size; i += width) {
-		err = idftCalc(ctx, &map[i], width);
+		err = idftCalc(ctx_x, &map[i], width);
+		if (err) {
+			exit(err);
+		}
+
+		err = idftCalc(ctx_y, &tmp[i], width);
 		if (err) {
 			exit(err);
 		}
 	}
 
+	for (y = 0; y < SIZE; y++) {
+		for (x = 0; x < SIZE; x++) {
+			map[y*SIZE + x] *= tmp[x*SIZE + y];
+		}
+	}
+
 	genNoise(map, size);
 
+	free(tmp);
 	return map;
 }
 
@@ -180,7 +200,12 @@ int main(int argc, char** argv)
 	int err;
 
 	srand(1);
-	err = idftInit(&ctx, mags, 3);
+	err = idftInit(&ctx_x, mags_x, 3);
+	if (err) {
+		return err;
+	}
+
+	err = idftInit(&ctx_y, mags_y, 1);
 	if (err) {
 		return err;
 	}
