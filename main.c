@@ -55,19 +55,19 @@ static struct magnitude mags_y[] = {
 };
 
 
-static void resize(int w, int h)
+static void resize(int width, int height)
 {
 	double ratio;
 
-	if (h == 0) {
-		h = 1;
+	if (height == 0) {
+		height = 1;
 	}
 
-	ratio = (double)w/(double)h;
+	ratio = (double)width/(double)height;
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glViewport(0, 0, w, h);
+	glViewport(0, 0, width, height);
 	gluPerspective(FOV, ratio, 1, RENDER_DIST);
 	glMatrixMode(GL_MODELVIEW);
 }
@@ -156,7 +156,6 @@ static void render(void)
 	float wave_shine[] = {100.0f};
 
 	glClear(GL_COLOR_BUFFER_BIT);
-
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	gluLookAt(CAMERA_X, CAMERA_Y, CAMERA_Z, EYE_X, EYE_Y, 0, 0, 0, 1);
@@ -200,11 +199,14 @@ int main(int argc, char** argv)
 	int err;
 
 	srand(1);
+
+	/* Initialize x-axis dft generator */
 	err = idftInit(&ctx_x, mags_x, 3);
 	if (err) {
 		return err;
 	}
 
+	/* Initialize y-axis dft generator */
 	err = idftInit(&ctx_y, mags_y, 1);
 	if (err) {
 		return err;
