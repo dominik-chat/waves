@@ -22,3 +22,6 @@ The program can be installed using this command:
 make install
 ```
 **Note that you may be required to execute this command as a superuser**
+
+## Documentation
+The documentation can be built using [doxygen](https://www.doxygen.nl/) with [graphviz](https://graphviz.org/) using provided `Doxyfile`.
